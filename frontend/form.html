@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ration System</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0072ff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 30px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            background: #0072ff;
+            color: white;
+            border: none;
+        }
+
+        #report {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            width: 350px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div>
+    <div class="box">
+        <h2>Ration Entry</h2>
+
+        <input type="date" id="date">
+        <input type="text" id="name" placeholder="Customer Name">
+        <input type="text" id="ration" placeholder="Ration Card Number">
+        <input type="number" id="members" placeholder="Total Members">
+
+        <!--  Radio Buttons -->
+        <label><input type="radio" name="type" value="PHH" checked> PHH</label>
+        <label><input type="radio" name="type" value="APL"> APL</label>
+
+        <button onclick="saveData()">Save Entry</button>
+        <button onclick="showDatePicker()">Generate Report </button>
+        <input type="date" id="reportDate" onchange="showReport()">
+    </div>
+
+    <!-- Report Display -->
+    <div id="report"></div>
+</div>
+
+<script>
+
+// Save Data
+function saveData() {
+
+    let type = document.querySelector('input[name="type"]:checked').value;
+
+    let data = {
+        date: document.getElementById("date").value,
+        name: document.getElementById("name").value,
+        ration: document.getElementById("ration").value,
+        members: Number(document.getElementById("members").value),
+        type: type
+    };
+
+    let allData = JSON.parse(localStorage.getItem("rationData")) || [];
+    allData.push(data);
+
+    localStorage.setItem("rationData", JSON.stringify(allData));
+
+    alert("Saved ✅");
+}
+
+// Date picker open kar
+function showDatePicker() {
+    document.getElementById("reportDate").click();
+}
+
+//  Show Report 
+function showReport()  {
+
+    let selectedDate = document.getElementById("reportDate").value;
+    let allData = JSON.parse(localStorage.getItem("rationData")) || [];
+
+    let output = "<h3>Daily Report</h3>";
+    output += "<b>Date: " + selectedDate + "</b><br><br>";
+
+    
+    output += "<table border='1' width='100%' style='border-collapse:collapse'>";
+    output += "<tr><th>RC No</th><th>Name</th><th>Type</th><th>Members</th><th>Wheat</th><th>Rice</th></tr>";
+
+    for(let i = 0; i < allData.length; i++) {
+
+        if(allData[i].date === selectedDate) {
+
+            let wheat, rice;
+
+            if(allData[i].type === "APL") {
+                wheat = 15;
+                rice = 15;
+            } else {
+                wheat = allData[i].members * 3;
+                rice = allData[i].members * 2;
+            }
+
+            output += "<tr>";
+            output += "<td>" + allData[i].ration + "</td>";
+            output += "<td>" + allData[i].name + "</td>";
+            output += "<td>" + allData[i].type + "</td>";
+            output += "<td>" + allData[i].members + "</td>";
+            output += "<td>" + wheat + " kg</td>";
+            output += "<td>" + rice + " kg</td>";
+            output += "</tr>";
+        }
+    }
+
+    output += "</table>";
+
+    document.getElementById("report").innerHTML = output;
+}
+
+</script>
+
+</body>
+</html>
