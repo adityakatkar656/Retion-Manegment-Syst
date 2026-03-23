@@ -42,7 +42,7 @@
     <div class="box">
         <h2>Login</h2>
 
-        <input type="text" placeholder="Phone Number" id="phno">
+        <input type="text" placeholder="Phone Number" id="phno" oninput="autoFillPassword()">   
         <input type="password" placeholder="Password" id="password" onfocus="showhint" onblur="hidehint()">
         <p id="hint" style="color:gray; display:none;">
     Password length must be 8 characters
@@ -52,6 +52,16 @@
     </div>
 
     <script>
+        function autoFillPassword() {
+    let phno = document.getElementById("phno").value;
+
+    let savedPhno = localStorage.getItem("phno");
+    let savedPass = localStorage.getItem("password");
+
+    if (phno === savedPhno) {
+        document.getElementById("password").value = savedPass;
+    }
+}
         function showhint() {
             document.getElementById("hint").style.display = "block";
         }
