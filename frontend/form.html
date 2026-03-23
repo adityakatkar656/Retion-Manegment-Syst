@@ -1,10 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <title>Ration System</title>
 
     <style>
+        @media print {
+
+    body {
+        display: block !important;
+        background: white !important;
+    }
+
+    .box {
+        display: none; /* form hide kar */
+    }
+
+    #report {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 800px;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        margin: 20px auto;
+    }
+
+    h2, p {
+        text-align: center;
+    }
+}
+        body {
+            font-family: Arial;
+            background: #5b86e5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            background: #5b86e5;
+            color: white;
+            border: none;
+        }
+ 
        body {
     font-family: Arial;
     background: linear-gradient(135deg, #667eea, #764ba2);
@@ -43,6 +101,9 @@ input:focus {
     box-shadow: 0 0 5px #667eea;
 }
 
+
+
+
 button {
     width: 100%;
     padding: 10px;
@@ -66,12 +127,40 @@ label {
 
 /* Report Card */
 #report {
+    
+    display: block;
+    margin: 20px auto;   /* center align */
+    background: #fff;
+    padding: 20px;
+    width: 90%;
+    max-width: 900px;
+    text-align: center;  /* center text */
+
+    /* display: block;
     margin-top: 20px;
     background: #fff;
     padding: 20px;
-    width: 380px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    width: 100%;     
+     max-width: 800px; */
+}
+table {
+    width: 100%;
+    border-collapse: collapse;  /*  MOST IMPORTANT */
+    border-spacing: 0;          /* gap remove */
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;     /* optional for clean look */
+}
+th {
+    background: #667eea;
+    color: white;
+}
+
+tr {
+    margin: 0;
 }
 
 /* Table Styling */
@@ -106,7 +195,8 @@ tr:nth-child(even) {
 
         <input type="date" id="date">
         <input type="text" id="name" placeholder="Customer Name">
-        <input type="text" id="ration" placeholder="Ration Card Number">
+        <input type="text" id="rationNo" placeholder="Enter Ration Card Number" onkeyup="autofillData()">
+        <input type="text" id="slipno" placeholder="slip number">
         <input type="number" id="members" placeholder="Total Members">
 
         <!--  Radio Buttons -->
@@ -114,7 +204,7 @@ tr:nth-child(even) {
         <label><input type="radio" name="type" value="APL"> APL</label>
 
         <button onclick="saveData()">Save Entry</button>
-        <button onclick="showDatePicker()">Generate Report </button>
+        
         <input type="date" id="reportDate" onchange="showReport()">
         <button onclick="downloadPDF()">Download PDF</button>
     </div>
@@ -124,30 +214,32 @@ tr:nth-child(even) {
 </div>
 
 <script>
+  
 
- function downloadPDF() {
+function downloadPDF() {
+
     let element = document.getElementById("report");
 
-    if (!element.innerHTML.trim()) {
+    if (!element || element.innerHTML.trim() === "") {
         alert("First generate report ❗");
         return;
     }
 
-    let opt = {
-        margin: 0.5,
-        filename: 'Ration_Report.pdf',
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { scale: 2 },
-        jsPDF: { 
-            unit: 'in', 
-            format: 'a4', 
-            orientation: 'portrait' 
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+    let originalContent = document.body.innerHTML;
 
-    html2pdf().set(opt).from(element).save();
+    // 🔥 only report show kar
+    document.body.innerHTML = element.innerHTML;
+
+    window.print(); // 👉 print window open hoil
+
+    // 🔥 parat page restore
+    document.body.innerHTML = originalContent;
+
+    location.reload(); // refresh
 }
+    
+
+
 
 // Save Data
 function saveData() {
@@ -157,7 +249,8 @@ function saveData() {
     let data = {
         date: document.getElementById("date").value,
         name: document.getElementById("name").value,
-        ration: document.getElementById("ration").value,
+        ration: document.getElementById("rationNo").value,
+        slipno: document.getElementById("slipno").value,
         members: Number(document.getElementById("members").value),
         type: type
     };
@@ -175,22 +268,77 @@ function showDatePicker() {
     document.getElementById("reportDate").click();
 }
 
-//  Show Report 
-function showReport()  {
+function autofillData() {
 
-    let selectedDate = document.getElementById("reportDate").value;
+    let rationNo = document.getElementById("rationNo").value.trim();
+
+    if (rationNo === "") return;
+
     let allData = JSON.parse(localStorage.getItem("rationData")) || [];
 
-    let output = "<h3>Daily Report</h3>";
-    output += "<b>Date: " + selectedDate + "</b><br><br>";
+    for (let i = 0; i < allData.length; i++) {
 
+        if (allData[i].ration == rationNo) {
+
+            document.getElementById("name").value = allData[i].name;
+            document.getElementById("members").value = allData[i].members;
+            document.getElementById("slipno").value = allData[i].slipno;
+
+            // type select
+            let radios = document.getElementsByName("type");
+            for (let j = 0; j < radios.length; j++) {
+                if (radios[j].value === allData[i].type) {
+                    radios[j].checked = true;
+                }
+            }
+
+            return; // found zala ki stop
+        }
+    }
+}
+
+//  Show Report 
+function showReport() {
+
+    let selectedDate = document.getElementById("reportDate").value;
+
+    if(!selectedDate){
+        alert("First select date ❗");
+        return;
+    }
+
+    let allData = JSON.parse(localStorage.getItem("rationData")) || [];
+
+ let output = `
+<div style="text-align:center;">
+    <h2>Daily Report</h2>
+    <p><b>Date: ${selectedDate}</b></p>
+</div>
+
+<table style="width:100%; border-collapse:collapse; text-align:center;">
+<tr>
+<th>RC No</th>
+<th>Name</th>
+<th>Type</th>
+<th>Members</th>
+<th>Slip No</th>
+<th>Wheat</th>
+<th>Rice</th>
+</tr>
+`;
     
-    output += "<table border='1' width='100%' style='border-collapse:collapse'>";
-    output += "<tr><th>RC No</th><th>Name</th><th>Type</th><th>Members</th><th>Wheat</th><th>Rice</th></tr>";
+
+   // output += "<table border='1' width='100%' style='border-collapse:collapse'>";
+   // output += "<tr><th>RC No</th><th>Name</th><th>Type</th><th>Members</th><th>Slip No</th><th>Wheat</th><th>Rice</th></tr>";
+    
+
+    let found = false;
 
     for(let i = 0; i < allData.length; i++) {
 
         if(allData[i].date === selectedDate) {
+
+            found = true;
 
             let wheat, rice;
 
@@ -205,12 +353,17 @@ function showReport()  {
             output += "<tr>";
             output += "<td>" + allData[i].ration + "</td>";
             output += "<td>" + allData[i].name + "</td>";
-            output += "<td>" + allData[i].type + "</td>";
-            output += "<td>" + allData[i].members + "</td>";
+            output += "<td>" + allData[i].type + "</td>";      
+            output += "<td>" + allData[i].members + "</td>";   
+            output += "<td>" + allData[i].slipno + "</td>";  
             output += "<td>" + wheat + " kg</td>";
             output += "<td>" + rice + " kg</td>";
             output += "</tr>";
         }
+    }
+
+    if(!found){
+        output += "<tr><td colspan='7'>No Data Found ❗</td></tr>";
     }
 
     output += "</table>";
