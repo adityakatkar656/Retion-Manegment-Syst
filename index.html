@@ -42,17 +42,35 @@
     <div class="box">
         <h2>Login</h2>
 
-        <input type="text" placeholder="Phone Number">
-        <input type="password" placeholder="Password">
+        <input type="text" placeholder="Phone Number" id="phno">
+        <input type="password" placeholder="Password" id="password" onfocus="showhint" onblur="hidehint()">
+        <p id="hint" style="color:gray; display:none;">
+    Password length must be 8 characters
+</p>
 
         <button onclick="login()">Login</button>
     </div>
 
     <script>
-        function login() {
-            // 👉 direct redirect (no check)
-            window.location.href = "frontend/form.html";
+        function showhint() {
+            document.getElementById("hint").style.display = "block";
         }
+        function hidehint() {
+            document.getElementById("hint").style.display = "none";
+        }
+
+        function login() {
+            const phno = document.getElementById("phno").value;
+            const password = document.getElementById("password").value;
+            if (/^[0-9]{10}$/.test(phno) && password.length===8) {
+                   localStorage.setItem("phno", phno);
+                   localStorage.setItem("password", password);
+                 window.location.href = "frontend/form.html";
+        }
+        else {
+            alert("Invalid phone number or password. Please try again.");
+        }
+    }
     </script>
 
 </body>

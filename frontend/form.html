@@ -42,6 +42,23 @@
             width: 350px;
             border-radius: 10px;
         }
+        
+        @media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #report, #report * {
+        visibility: visible;
+    }
+
+    #report {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+}
     </style>
 </head>
 
@@ -63,6 +80,7 @@
         <button onclick="saveData()">Save Entry</button>
         <button onclick="showDatePicker()">Generate Report </button>
         <input type="date" id="reportDate" onchange="showReport()">
+        <button onclick="printReport()">Print / Save PDF</button>
     </div>
 
     <!-- Report Display -->
@@ -70,6 +88,10 @@
 </div>
 
 <script>
+
+    function printReport() {
+    window.print();
+}
 
 // Save Data
 function saveData() {
