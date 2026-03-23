@@ -116,7 +116,7 @@ tr:nth-child(even) {
         <button onclick="saveData()">Save Entry</button>
         <button onclick="showDatePicker()">Generate Report </button>
         <input type="date" id="reportDate" onchange="showReport()">
-        <button onclick="printReport()">Print / Save PDF</button>
+        <button onclick="downloadPDF()">Download PDF</button>
     </div>
 
     <!-- Report Display -->
@@ -124,16 +124,26 @@ tr:nth-child(even) {
 </div>
 
 <script>
-console.log(localStorage.getItem("rationData"));
+
  function downloadPDF() {
     let element = document.getElementById("report");
+
+    if (!element.innerHTML.trim()) {
+        alert("First generate report ❗");
+        return;
+    }
 
     let opt = {
         margin: 0.5,
         filename: 'Ration_Report.pdf',
         image: { type: 'jpeg', quality: 1 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        jsPDF: { 
+            unit: 'in', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     html2pdf().set(opt).from(element).save();
