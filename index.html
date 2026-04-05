@@ -1,10 +1,10 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
     <title>Login</title>
 
     <style>
-        
         body {
             font-family: Arial;
             background: #5b86e5;
@@ -34,26 +34,41 @@
             background: #5b86e5;
             color: white;
             border: none;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
         }
     </style>
 </head>
 
 <body>
 
+<div id="mainApp">
+
     <div class="box">
         <h2>Login</h2>
 
-        <input type="text" placeholder="Phone Number" id="phno" oninput="autoFillPassword()">   
-        <input type="password" placeholder="Password" id="password" onfocus="showhint" onblur="hidehint()">
+        <input type="text" placeholder="Phone Number" id="phno" oninput="autoFillPassword(); validateForm()">   
+
+        <input type="password" placeholder="Password" id="password"
+               onfocus="showhint()" 
+               onblur="hidehint()" 
+               oninput="validateForm()">
+
         <p id="hint" style="color:gray; display:none;">
-    Password length must be 8 characters
-</p>
+            Password length must be 8 characters
+        </p>
 
-        <button onclick="login()">Login</button>
+        <button id="loginBtn" onclick="login()" disabled>Login</button>
     </div>
+</div>
 
-    <script>
-        function autoFillPassword() {
+<script>
+
+function autoFillPassword() {
     let phno = document.getElementById("phno").value;
 
     let savedPhno = localStorage.getItem("phno");
@@ -63,26 +78,45 @@
         document.getElementById("password").value = savedPass;
     }
 }
-        function showhint() {
-            document.getElementById("hint").style.display = "block";
-        }
-        function hidehint() {
-            document.getElementById("hint").style.display = "none";
-        }
 
-        function login() {
-            const phno = document.getElementById("phno").value;
-            const password = document.getElementById("password").value;
-            if (/^[0-9]{10}$/.test(phno) && password.length===8) {
-                   localStorage.setItem("phno", phno);
-                   localStorage.setItem("password", password);
-                 window.location.href = "frontend/form.html";
-        }
-        else {
-            alert("Invalid phone number or password. Please try again.");
-        }
+function showhint() {
+    document.getElementById("hint").style.display = "block";
+}
+
+function hidehint() {
+    document.getElementById("hint").style.display = "none";
+}
+
+function validateForm() {
+    const phno = document.getElementById("phno").value;
+    const password = document.getElementById("password").value;
+
+    const isValid = /^[0-9]{10}$/.test(phno) && password.length === 8;
+
+    document.getElementById("loginBtn").disabled = !isValid;
+}
+
+function login() {
+    const phno = document.getElementById("phno").value;
+    const password = document.getElementById("password").value;
+
+    if (/^[0-9]{10}$/.test(phno) && password.length === 8) {
+
+        // ⚠️ Only for demo (not secure)
+        localStorage.setItem("phno", phno);
+        localStorage.setItem("password", password);
+
+        alert("Login Successful!");
+
+        window.location.href = "frontend/form.html";
+
+    } else {
+        alert("Invalid phone number or password.");
     }
-    </script>
+}
+
+</script>
 
 </body>
 </html>
+```
